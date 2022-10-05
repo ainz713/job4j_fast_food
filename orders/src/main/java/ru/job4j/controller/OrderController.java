@@ -1,5 +1,6 @@
 package ru.job4j.controller;
 
+import org.springframework.kafka.annotation.KafkaListener;
 import ru.job4j.domain.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,21 +24,19 @@ public class OrderController {
         this.or = or;
     }
 
+    @KafkaListener(topics = "cooked_order")
+    public void save2(Order record) {
+        or.save(record);
+    }
+
     public void save(Order o) {
+        o.setStatus("Заказ сформирован");
         or.save(o);
     }
 
-    @PutMapping("/save")
-    public ResponseEntity<Order> save1(@Valid @RequestBody Order passport) {
-        return new ResponseEntity<Order>(
-                this.or.save(passport),
-                HttpStatus.CREATED
-        );
-    }
-
     @PostMapping
-    public void sendOrder(@RequestBody Order msg){
+    public void sendOrder(@RequestBody Order msg) {
        save(msg);
-       kafkaTemplate.send("order", msg.getId(), msg);
+       kafkaTemplate.send("preorder", msg.getId(), msg);
     }
 }

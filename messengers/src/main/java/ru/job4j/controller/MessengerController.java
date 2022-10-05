@@ -22,7 +22,7 @@ public class MessengerController {
         this.pr = pr;
     }
 
-    @KafkaListener(topics="order")
+    @KafkaListener(topics = "order")
     public void save(Order record) {
         Messenger m = new Messenger();
         m.setOrder(record);
